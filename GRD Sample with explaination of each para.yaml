@@ -1,0 +1,59 @@
+application:
+name:	## Application Name *Required
+notifications:
+	- email: ## Change it in to your mail id and we can also add the more than one mail by using (,) *Required
+modules:
+	- name: demopython ## Name *Required
+		tool: python     ## Specify the tool for the module *Required
+		Path: pypi			 ## Specify the module folder *Required. This folder must in the root path of our local repo
+demopython:
+stages:							 ## Configure non deployment stage settings in related pipelines such as build
+	- name: build
+		skip: true
+		name: vulnerabilities
+		tool: python
+		skip: true
+deployment:
+	- name : default ## Required specify the name of envt to be configured Allowed values default,DEV,UAT,PROD.
+		templateType: Webapplication ## Enter web application if you want to create new ELB for the web app via this deployment
+		##Enter WebAppsubmodule if you want to associate existing ELB to the web app via this deployment
+		templateversion: REL-210101 ##Required.Enter the CICD pipeline version that includes the features you need.
+		parameters:
+#common params
+		deploy-type: create ##Optional.Specify the operation on the web application.
+		##Create-Enter this value if you want to create a new web application or update an existing web application
+		##force_create-Enter this value if you want to delete the existing web application and create a new web app.
+		##debug-Enter this value if you want to keep ec2 instance running despiteof the health check results
+		##delete-Enter this if you want to delete the web app
+		##cancel-enter this value if you want to cancel the deployment.
+		app-region: us-east-1 ## Optional.Specify the region where the app is deployed.
+		appGrpName: pypoc ##Optional. specify the App Group name that you configure on ssp. Default: None
+#ELB params
+		CertificateArn:	NONE ##Optional.Associate a certificate with ELB.Value type:string Default : None
+		ELBScheme:	internal ## Optional specify the load balance scheme
+		## internal : Use this if you want requests to be routed in private subnets.
+		##internal facing : Enter this value if you want to requests to be routed over the internet.
+		EnableS3Logs:	false ##Optional.True: Enter this value if you want to enable ELB logging.
+		##False:Enter this value if you want to disable ELB logging.
+		Redirect80T0443:	false ##Optional.Specify whether to enable traffic redirection
+#App Params
+		AMIDescriptor: NONE ##Optional. Specify the short code that describes the AMI.We can obtain the code from the DPE team.
+		ServiceAppId:	NONE  ##Optional. Specify DPE internal APP ID that offers the AMI.
+		BusinessCode: NONE  ##Optional. Specify standard business code of the application.Required for App specific AMI's.
+		Ec2PreInstalledTools:	Python -3.6,tdgent ## Required List the tools to be pre installed during EC2 creation.
+		VendorList: xxx.zip.xxx.tar.gz ##Optional. Specify the vendor packages to be downloaded from from the JFrog to EC2(/usr/local/clo/ven).Enter the complete file name of the package.
+		Downloadallvendor:	false ## True - Enter this value if you want to download all vendor packages
+															## False- Enter this value if you do not want to download all vendor packages(default)
+		InstanceType:	t3.medium ## Optional. Specify EC2 instance Type. Default- t3.medium
+		NoRootVolumeSize:	50   ##Optional.Specify the non -root EBS voulme size. Default : 50
+		ASGDesire:	2 ##Optional.Specify the desired EC2 instance in an ASG. Default :2
+		ASGMin:	2 ##Optional.Specify the minimum number of EC2 instancesin an ASG. Default :2
+		ASGMax:	3 ##Optional.Specify the maximum number of EC2 instancesin an ASG. Default :3
+		ASGTimeout:	Pt2om ## Optional. Specify the total amount of time allowed for health for health checks.
+		OSType:	amzn2 ## Optional. Specify the standard DPE OS type for the EC2 instances.Default : amzn2
+-name: DEV
+		Branch-name : Integration
+-name:	UAT
+		Branch-name: master
+Parameters:
+	deplopyedArtifactory:pythondemo.zip
